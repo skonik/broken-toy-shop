@@ -1,0 +1,59 @@
+repos:
+  - repo: local
+    hooks:
+
+      - id: absolufy-imports
+        name: absolufy-imports
+        entry: absolufy-imports
+        language: python
+        types: [python]
+        args: [
+          "--application-directories",
+          ":app",
+        ]
+
+      - id: autoflake
+        name: autoflake
+        entry: autoflake
+        language: python
+        types: [ python ]
+        args: [
+          "--in-place",
+          "-r",
+        ]
+
+      - id: black
+        name: black
+        entry: black
+        language: python
+        types: [python]
+
+      - id: isort
+        name: isort
+        entry: isort
+        language: python
+        types: [python]
+
+
+      - id: ruff
+        name: ruff
+        entry: ruff . --fix
+        language: python
+        types: [python]
+
+
+      - id: git-limiter
+        name: git-limiter
+        entry: git-limiter
+        language: python
+        types: [ python ]
+        stages:
+          - commit
+          - push
+        pass_filenames: false
+        always_run: true
+        args: [
+          "--config",
+          "app/pyproject.toml"
+        ]
+
