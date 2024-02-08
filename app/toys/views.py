@@ -1,3 +1,4 @@
+import threading
 import time
 
 from django.db import transaction
@@ -13,6 +14,7 @@ from toys.models import Order, Toy
 
 FREE_TOY_ID = 1
 
+
 # Possible solutions
 # 1. Check constraint
 # 2. Select for update
@@ -22,19 +24,22 @@ FREE_TOY_ID = 1
 class ObtainFreeToyAPI(APIView):
     def post(self, request: Request) -> Response:
         with transaction.atomic():
-            free_toy = Toy.objects.get(id=FREE_TOY_ID)
+            print(threading.current_thread())
 
-            time.sleep(3)
+            updated_rows = Toy.objects.filter(
+                id=FREE_TOY_ID,
+                quantity__gt=0,
+            ).update(quantity=F("quantity") - 1)
 
-            if free_toy.quantity <= 0:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            time.sleep(10)
 
-            free_toy.quantity = F("quantity") - 1
-            free_toy.save()
+            toy = Toy.objects.get(id=FREE_TOY_ID)
 
-            Order.objects.create(
-                user=request.user,
-                toy=free_toy,
-            )
+            if updated_rows != 0:
+                Order.objects.create(
+                    user=None,
+                    toy=toy,
+                )
+                return Response(status=status.HTTP_201_CREATED)
 
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)

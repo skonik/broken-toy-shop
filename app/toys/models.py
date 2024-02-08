@@ -21,6 +21,7 @@ class Order(models.Model):
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="orders",
+        null=True,
     )
     toy = models.ForeignKey(to=Toy, on_delete=models.CASCADE, related_name="orders")
 
